@@ -1,0 +1,27 @@
+{
+	"climate" :[
+		{
+			"countryname" : "USA",
+			"longitude" : 0.23242234,
+			"latitude" : 2.4532452,
+			"temperature" : "29.23"
+		},
+		{
+			"countryname" : "India",
+			"longitude" : 6.453232,
+			"latitude" : 7.56446,
+			"temperature" : "29.24"	
+		},
+		{
+			"countryname" : "Pakistan",
+			"longitude" : 4.424522,
+			"latitude" : 6.2425532,
+			"temperature" : "29.25"
+		},
+		{
+			"countryname" : "Afganistan",
+			"longitude" : 0.23242234,
+			"latitude" : 2.4532452,
+			"temperature" : "29.26"
+		}]
+}
