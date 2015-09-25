@@ -3,44 +3,104 @@ var app = express();
 var async = require('async');
 var fs = require('fs');
 
+//Read contents from climate.json file.
+
 var content = JSON.parse(fs.readFileSync('climate.json'));
 
-
-
-app.get('/country', function(req, res){
-	var details = {};
-	var countryname = req.query.countryname;
+app.get('/convertClimate', function(request, response){
+	
+	//Null Object. 
+	var Map = {};
+	var countryName = request.query.countryname;
+	
+	//Here we are using waterfakk method of Async module to execute the function
+	//serially.
 	async.waterfall([
-		function(callback){
+
+		//Here we are fetching the longitude and latitude of requested Country.
+
+		function getLongitudeLatitude(callback){
+			var flag = 0;
+
+			//Checking weather requested country is present in JSON or not.
+			//If it is available then flag will turn to 1 at the same time longitiude 
+			//and latitude of the respective country will be passed to next function.
+
 			for(var i =0; i < content.climate.length ; i++){
-				if(countryname == content.climate[i].countryname){
+				if(countryName == content.climate[i].countryname){
+					flag = 1;
 					callback(null, content.climate[i].longitude, content.climate[i].latitude);
 				}
 			}
+
+			//If flag is 0 it means requested country is not available in JSON/File.
+
+			if(flag == 0){
+				callback(null, null, null);
+			}
 		},
-		function(longt, lat, callback){
-			for(var j =0; j < content.climate.length ; j++){
-				if(longt == content.climate[j].longitude && lat == content.climate[j].latitude){
-					details[countryname] = {
-						"longitude" : longt,
-						"latitude" : lat
+
+		//We are fetching temperature of requested Country with the help of longitude 
+		//and latitude.
+
+		function getTemperature(longitude, latitude, callback){
+
+			// If longitude and latitude is null then it will pass temperature equal to null,
+
+			if(longitude == null && latitude == null){
+				callback(null, null);
+			}else{
+
+				// We are fetching temperature with the help of longitude and latitude.
+
+				for(var j =0; j < content.climate.length ; j++){
+					if(longitude == content.climate[j].longitude && latitude == content.climate[j].latitude){
+						
+						//If we found similar longitude & latitude as parameters of function
+						//then will mount longitude &  latitude in Map with countryName as key.
+
+						Map[countryName] = {
+							"longitude" : longitude,
+							"latitude" : latitude
+						}
+
+						//Passing temperature to next callback.
+
+						callback(null, content.climate[j].temperature);
 					}
-					callback(null, content.climate[j].temperature);
 				}
 			}
 		},
-		function(temperature, callback){
-			var temp = temperature*33.8;
-			var tempo = temp+"F";
-			details[countryname]["temperature"] = tempo;
-			callback(null, details);
+
+		//Here we convert the temperature which is in degree celcius to Faherneit.
+
+		function convertToFaherneit(temperature, callback){
+			if(temperature == null){
+				callback(null, null);
+			}else{
+				var temp = temperature*33.8;
+				var tempo = temp+"F";
+				Map[countryName]["temperature"] = tempo;
+				callback(null, Map);
+			}
 		},
-		function(details, callback){
-			fs.writeFileSync('destination.json', JSON.stringify(details));
-			callback(null, details);
+
+		//Write to destination file.
+
+		function writeToFile(Map, callback){
+			if(Map == null){
+				callback(null, null);
+			}else{
+				fs.appendFileSync('destination.json', JSON.stringify(Map));
+				callback(null, Map);
+			}
 		}
-	], function(err, result){
-		res.send(details);
+	], function responseToUser(error, result){
+		if(result == null){
+			response.send("Undefined CountryName");
+		}else{
+			response.send(result);
+		}
 	});
 });
 
