@@ -1,3 +1,13 @@
+//Problem Statement : 
+
+// a)Retrieving City from JSON file.
+// b)Retrieving Latitude,Longitude using  API in Json Format.
+// c)Passing these Latitude and Longitude to another API to get Temperature.
+// d)According to Temperature calculated Fahrenheit.
+// e)Put all these value in object and Stringify() to convert in JSON format.
+// f)Finally write these values in JSON file.
+
+
 var express = require('express');
 var app = express();
 var async = require('async');
